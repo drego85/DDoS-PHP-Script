@@ -1,6 +1,6 @@
 <?php
 //Server Usage:	http://127.0.0.1/ddos.php?pass=apple&host=DDoSTarget&port=PORT&time=SECOND
-//CLI Usage:		php ./ddos.php host=DDoSTarget port=PORT time=SECOND pass=apple
+//CLI Usage:		php ./ddos.php host=DDoSTarget port=PORT time=SECOND
 
 $cli=false;
 
