@@ -28,7 +28,7 @@ From a terminal:
 - Other fix...
    
 ##Credits
-Andrea Draghetti is the creator of the project, I want thank:
+[Andrea Draghetti](https://twitter.com/AndreaDraghetti) is the creator of the project, I want thank:
 * [@Th3Zer0](https://twitter.com/Th3Zer0) to support for coding.
 
 ##License
