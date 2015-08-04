@@ -27,6 +27,14 @@ From a terminal:
 - Introduce the version number, start from 0.1
 - Other fix...
    
+##Credits
+Andrea Draghetti is the creator of the project, I want thank:
+* @Th3Zer0 to support for coding.
+
+##License
+GNU General Public License version 2.0 (GPLv2)
+
+
 ## Disclaimer
 
 This tool is written on educational purpose, **please** use it on your own good faith.
