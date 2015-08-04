@@ -21,9 +21,7 @@ From a terminal:
    - If none is used the script will exit with *"Missing Parameters"* Error.
 
 ## To-Do List
-- Prevent XSS with htmlspecialchars()
 - Man/Help for CLI users
-- Wiki/FAQ Section
 - Introduce the version number, start from 0.1
 - Other fix...
    
