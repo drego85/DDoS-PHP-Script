@@ -6,7 +6,7 @@ if(isset($argv)) {
     $cli=true;
 }
 
-if(isset($_GET['host'])&&(isset($_GET['time'])||isset($_GET['packet']))&&(isset($_GET['pass'])||$cli==true)){
+if(isset($_GET['host'])&&((isset($_GET['time']) && is_numeric($_GET['time']))||(isset($_GET['packet']) && is_numeric($_GET['packet']))&&(isset($_GET['pass'])||$cli==true)){
 	
 	// If executed from CLI no password
 	if($cli==false){
