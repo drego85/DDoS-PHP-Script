@@ -28,7 +28,8 @@ From a terminal:
    
 ##Credits
 [Andrea Draghetti](https://twitter.com/AndreaDraghetti) is the creator of the project, I want thank:
-* [@Th3Zer0](https://twitter.com/Th3Zer0) to support for coding.
+* [@Th3Zer0](https://twitter.com/Th3Zer0) to support for coding;
+* [@Smaury](https://twitter.com/smaury92) to support for coding.
 
 ##License
 GNU General Public License version 2.0 (GPLv2)
