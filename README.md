@@ -23,11 +23,13 @@ From a terminal:
 ## To-Do List
 - Man/Help for CLI users
 - Introduce the version number, start from 0.1
+- Introduce a logging function, which uses the correct printing method based on the use in cli or web mode
 - Other fix...
    
 ##Credits
 [Andrea Draghetti](https://twitter.com/AndreaDraghetti) is the creator of the project, I want thank:
-* [@Th3Zer0](https://twitter.com/Th3Zer0) to support for coding.
+* [@Th3Zer0](https://twitter.com/Th3Zer0) to support for coding;
+* [@Smaury](https://twitter.com/smaury92) to support for coding.
 
 ##License
 GNU General Public License version 2.0 (GPLv2)

