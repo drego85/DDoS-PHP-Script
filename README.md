@@ -23,6 +23,7 @@ From a terminal:
 ## To-Do List
 - Man/Help for CLI users
 - Introduce the version number, start from 0.1
+- Introduce a logging function, which uses the correct printing method based on the use in cli or web mode
 - Other fix...
    
 ##Credits
