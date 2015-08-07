@@ -148,9 +148,8 @@ if(!empty($params['host']) && (is_numeric($params['time'])) || is_numeric($param
 	
 	// If executed from CLI no password
 	if(!is_cli()){
-		if(isset($_GET['pass'])){
-			$pass = $_GET['pass'];
-			if (md5($pass) !== md5(DDOS_PASSWORD)) { 
+		if(!empty($params['pass'])){
+			if (md5($params['pass']) !== md5(DDOS_PASSWORD)) { 
 				println("Wrong password!"); 
 				// Maybe it is a good idea to hide usage here
 				// usage(); 
@@ -164,7 +163,6 @@ if(!empty($params['host']) && (is_numeric($params['time'])) || is_numeric($param
 			exit(1);
 		}
 	}
-	
 	
 	$packets = 0; 
 	$host = $params['host'];
