@@ -25,14 +25,15 @@ Note: 	If both time and packet are specified, only time will be used
 </pre>
 
 ## To-Do List
+- Validation for host param
+- Write a method to convert from bytes to kb, mb, gb ..ecc ecc
+- Introduce a logging function to file
 
-- Man/Help for CLI users
-- Introduce the version number, start from 0.1
-- Introduce a logging function, which uses the correct printing method based on the use in cli or web mode
- 
 ## Credits
 
-* [Andrea Draghetti](https://twitter.com/AndreaDraghetti) is the creator of the project, I want thank:
+* [Andrea Draghetti](https://twitter.com/AndreaDraghetti) is the creator of the project
+
+Special thanks:
 * [@TheZer0](https://github.com/TheZ3ro) to support for coding;
 * [@Smaury](https://github.com/smaury) to support for coding;
 * [@moty66](https://github.com/moty66) to support for coding.
@@ -45,4 +46,3 @@ GNU General Public License version 2.0 (GPLv2)
 ## Disclaimer
 
 This tool is written for educational purpose only, **please** use it on your own good faith.
-
