@@ -30,7 +30,7 @@ From a terminal:
 [Andrea Draghetti](https://twitter.com/AndreaDraghetti) is the creator of the project, I want thank:
 * [@TheZer0](https://github.com/TheZ3ro) to support for coding;
 * [@Smaury](https://github.com/smaury) to support for coding;
-* [@moty66](https://github.com/moty66= to support for coding.
+* [@moty66](https://github.com/moty66) to support for coding.
 
 ##License
 GNU General Public License version 2.0 (GPLv2)
