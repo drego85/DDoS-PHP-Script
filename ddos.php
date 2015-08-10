@@ -10,8 +10,8 @@
 
 define('DDOS_VERSION','0.1');
 
-// Password to be used when the script is executed from the webserver
-define('DDOS_PASSWORD','pass');
+// MD5 Password to be used when the script is executed from the webserver, default is "apple"
+define('DDOS_PASSWORD','1f3870be274f6c49b3e31a0c6728957f');
 
 // Default packet size
 define('DDOS_DEFAULT_PACKET_SIZE',65000);
@@ -176,7 +176,7 @@ if(!empty($params['host']) && (is_numeric($params['time'])) || is_numeric($param
 	// If executed from CLI no password
 	if(!is_cli()){
 		if(!empty($params['pass'])){
-			if (md5($params['pass']) !== md5(DDOS_PASSWORD)) { 
+			if (md5($params['pass']) !== DDOS_PASSWORD) { 
 				println("Wrong password!"); 
 				// Maybe it is a good idea to hide usage here
 				// usage(); 
