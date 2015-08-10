@@ -57,8 +57,8 @@ function usage() {
 	println('DDoS PHP Script, version '.DDOS_VERSION);
 	println();
 	println("Usage:");
-	println("from terminal:  php ./".basename(__FILE__)." host=TARGET port=PORT time=SECONDS packet=NUMBER");
-	println("from webserver: http://localhost/ddos.php?pass=PASSWORD&host=TARGET&port=PORT&time=SECONDS&packet=NUMBER");
+	println("from terminal:  php ./".basename(__FILE__)." host=TARGET port=PORT time=SECONDS packet=NUMBER bytes=NUMBER");
+	println("from webserver: http://localhost/ddos.php?pass=PASSWORD&host=TARGET&port=PORT&time=SECONDS&packet=NUMBER&bytes=NUMBER");
 	println();
 	println("PARAMETERS");
 	println("----------");
