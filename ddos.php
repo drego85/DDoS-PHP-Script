@@ -32,7 +32,6 @@ function init() {
 	}
 }
 
-
 /**
  * Prints a message with a carriage return
  * @param string 	$message Message to print
@@ -73,7 +72,6 @@ function usage() {
 	println();
 	println("More information on https://github.com/drego85/DDoS-PHP-Script");
 }
-
 
 /**
  * Check if we are running the script from terminal or from a web server
@@ -117,7 +115,22 @@ function get_port($port = 0){
 	return ($port >= 1 &&  $port <= 65535) ? $port : rand(1,65535);
 }
 
-
+/**
+ * Host name or ip address validation
+ * @see	https://en.wikipedia.org/wiki/Hostname
+ * @param string $target
+ * @return boolean
+ */
+function validate_target($target) {
+	return 	(	//valid chars check
+				preg_match("/^([a-z\d](-*[a-z\d])*)(\.([a-z\d](-*[a-z\d])*))*$/i", $target) 
+				//overall length check
+			&& 	preg_match("/^.{1,253}$/", $target)
+				// Validate each label 										
+			&& 	preg_match("/^[^\.]{1,63}(\.[^\.]{1,63})*$/", $target)
+			)
+		||	filter_var($target, FILTER_VALIDATE_IP);										
+}
 
 /* SCRIPT START HERE */
 init();
@@ -162,6 +175,11 @@ if(!empty($params['host']) && (is_numeric($params['time'])) || is_numeric($param
 			// usage(); 
 			exit(1);
 		}
+	}
+	
+	if(!validate_target($params['host'])) {
+		println("ERROR, Invalid host or IP address!");
+		exit(1);
 	}
 	
 	// Packets count
