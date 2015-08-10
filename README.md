@@ -25,8 +25,6 @@ Note: 	If both time and packet are specified, only time will be used
 </pre>
 
 ## To-Do List
-- Validation for host param
-- Write a method to convert from bytes to kb, mb, gb ..ecc ecc
 - Introduce a logging function to file
 
 ## Credits

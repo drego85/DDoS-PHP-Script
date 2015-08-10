@@ -132,6 +132,20 @@ function validate_target($target) {
 		||	filter_var($target, FILTER_VALIDATE_IP);										
 }
 
+/**
+ * Convert from bytes to human readable size
+ * @param integer $bytes
+ * @param integer $precision Default:2
+ * @return string
+ */
+function format_bytes($bytes, $dec = 2) {
+	// exaggerating :)
+    $size   = array('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
+    $factor = floor((strlen($bytes) - 1) / 3);
+    return sprintf("%.{$dec}f", $bytes / pow(1024, $factor)) . @$size[$factor];
+}
+
+
 /* SCRIPT START HERE */
 init();
 
@@ -246,8 +260,7 @@ if(!empty($params['host']) && (is_numeric($params['time'])) || is_numeric($param
 	println("DDoS UDP flood completed"); 
 	println('Host: ' . $host);
 	println('Port: '. $port);
-	// TODO Write a method to convert from bytes to kb, mb, gb ..ecc ecc
-	println("Packets: " .$packets .'/'.round((($packets*$packet_size)/1024)/1024, 2). ' MB');
+	println("Packets: " .$packets .' ('.format_bytes($packets*$packet_size) .')');
 	println("Duration: " .$timeStr);
 	println("Avarage: " . round($packets/$exec_time, 2).' packet/second');
 	println();
