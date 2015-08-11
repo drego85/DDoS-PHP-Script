@@ -20,6 +20,8 @@ port	OPTIONAL if not specified a random ports will be selected
 time	OPTIONAL seconds to keep the DDoS alive, required if packet is not used
 packet	OPTIONAL number of packets to send to the target, required if time is not used
 bytes	OPTIONAL size of the packet to send, defualt: 65000
+format	OPTIONAL output format, (text,json,xml), default: text
+verbose	OPTIONAL 0: debug, 1:info, 2:notice, 3:warning, 4:error, default: info
 
 Note: 	If both time and packet are specified, only time will be used
 </pre>
