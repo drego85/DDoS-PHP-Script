@@ -14,7 +14,8 @@ From terminal:
 
 ## Parameters
 
-<pre>host	REQUIRED specify IP or HOSTNAME
+<pre>help	Print this help summary page
+host	REQUIRED specify IP or HOSTNAME
 pass	REQUIRED only if used from webserver
 port	OPTIONAL if not specified a random ports will be selected
 time	OPTIONAL seconds to keep the DDoS alive, required if packet is not used
