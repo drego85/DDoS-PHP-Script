@@ -85,7 +85,8 @@ class DDoS {
 			'pass'	=> 	'',
 			'bytes' =>	'',
 			'verbose'=> DDOS_LOG_INFO,
-			'format'=> 'text'
+			'format'=> 'text',
+			'output'=> ''
 	);
 	
 	
@@ -176,6 +177,7 @@ class DDoS {
 		$this->println("packet	OPTIONAL number of packets to send to the target, required if time is not used");
 		$this->println("bytes	OPTIONAL size of the packet to send, defualt: ".DDOS_DEFAULT_PACKET_SIZE);
 		$this->println("format	OPTIONAL output format, (text,json,xml), default: text");
+		$this->println("output	OPTIONAL logfile, save the output to file");
 		$this->println("verbose	OPTIONAL 0: debug, 1:info, 2:notice, 3:warning, 4:error, default: info");
 		$this->println();
 		$this->println("Note: 	If both time and packet are specified, only time will be used");
@@ -371,6 +373,10 @@ class DDoS {
 			$this->set_param('packet', abs(intval($this->get_param('packet'))));
 		}
 		
+		if('' != $this->get_param('output')) {
+			$this->log("Setting log file to " .$this->get_param('output'),DDOS_LOG_INFO);
+		}
+		
 	}
 	
 	
@@ -500,7 +506,7 @@ class DDoS {
 	/**
 	 * Print the output of the script
 	 */
-	public function print_output() {
+	private function print_output() {
 		switch($this->get_param('format')) {
 			case DDOS_OUTPUT_FORMAT_JSON: {
 				echo json_encode($this->output);	
@@ -531,10 +537,20 @@ class DDoS {
 	 * @param string 	$message 	Message
 	 * @param integer 	$code		Log code
 	 */
-	public function log($message,$code = DDOS_LOG_INFO) {
+	private function log($message,$code = DDOS_LOG_INFO) {
 		if($code <= $this->get_param('verbose') && $this->get_param('format') == DDOS_OUTPUT_FORMAT_TEXT) {
 			$this->println('['.$this->log_labels[$code] . '] ' . $message);	
 		}
+	}
+	
+	/**
+	 * Save output to file
+	 * @param unknown $message
+	 */
+	private function log_to_file($message) {
+		if('' != $this->get_param('output')) {
+			file_put_contents($this->get_param('output'), $message, FILE_APPEND | LOCK_EX);
+		}	
 	}
 	
 	
@@ -543,8 +559,9 @@ class DDoS {
 	 * @param string 	$message Message to print
 	 * @param integer 	$indent Number of tabs to print before the message
 	 */
-	function println($message = '') {
+	private function println($message = '') {
 		echo $message . "\n";
+		$this->log_to_file($message . "\n");
 		ob_flush();
 		flush();
 	}
