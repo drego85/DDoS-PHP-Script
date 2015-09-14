@@ -28,6 +28,9 @@ verbose	OPTIONAL 0: debug, 1:info, 2:notice, 3:warning, 4:error, default: info
 Note: 	If both time and packet are specified, only time will be used
 </pre>
 
+## Requirements
+- PHP 5.4 version or greater
+
 ## To-Do List
 - Introduce a logging function to file
 
