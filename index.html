@@ -42,6 +42,7 @@
 	</div>
 	<script>
 		var _log=document.getElementById("log");
+		var intervalHandler = null;
 		function fire(){
 			inputLock(true);
 			var host=document.getElementById("host").value;
@@ -56,7 +57,15 @@
 			if(host!="" && pass!=""){
 				var url='./backend.php?pass='+pass+'&host='+host+(port!=""? '&port='+port:'')+(time!=""? '&time='+time:'')+(packet!=""? '&packet='+packet:'')+(bytes!=""? '&bytes='+bytes:'')+(interval!=""? '&interval='+interval:'');
 				console.log(url);
-				microAjax(url, function(result) { _log.value=result;});
+				microAjax(url, function(result) { 
+				_log.value=result;
+				if(_log.value.includes("Wrong password")){
+					constantAttack(false);
+				}
+				if(intervalHandler == null){
+					inputLock(false);
+				}
+				});
 			}
 		}
 		
@@ -77,16 +86,17 @@
 		function constantAttack(status){
 			var host=document.getElementById("host").value;
 			var host=document.getElementById("pass").value;
+			var intervalTime=(document.getElementById("time").value * 1000) + 1000;
 			if(host!="" && pass!=""){
 				if(status == true){
 					fire();
 					inputLock(true);
-					var intervalTime=(document.getElementById("time").value * 1000) + 1000;
-					var intervalHandler = setInterval(fire,intervalTime);
+					intervalHandler = setInterval(fire,intervalTime);
 				}
-				else{
+				else if(status == false){
 					clearInterval(intervalHandler);
 					inputLock(false);
+					intervalHandler = null;
 				}
 			}
 			else{
