@@ -75,11 +75,13 @@
 		
 		function constantAttack(status){
 			if(status == true){
+				inputLock(true);
 				var intervalTime=(document.getElementById("time").value * 1000) + 1000;
 				var intervalHandler = setInterval(fire,intervalTime);
 			}
 			else{
 				clearInterval(intervalHandler);
+				inputLock(false);
 			}
 		}
 		
