@@ -24,7 +24,7 @@
 	<div id="ddos">
 		<button id="loadLag" onClick="javascript:lagConfig();">Lag config</button>
 		<button id="loadTraffic" onClick="javascript:trafficConfig();">Traffic config</button>
-		<br />
+
 		<label>Host:</label><input type="text" id="host"><br/>
 		<label>Port:</label><input type="number" id="port" max=65535 min=1 step=1 value=80><br/>
 		<label>Packet:</label><input type="number" id="packet" min=1 step=1><br/>
@@ -42,6 +42,7 @@
 	</div>
 	<script>
 		function fire(){
+			inputLock(true);
 			var host=document.getElementById("host").value;
 			var port=document.getElementById("port").value;
 			var packet=document.getElementById("packet").value;
@@ -54,7 +55,7 @@
 			if(host!="" && pass!=""){
 				var url='./backend.php?pass='+pass+'&host='+host+(port!=""? '&port='+port:'')+(time!=""? '&time='+time:'')+(packet!=""? '&packet='+packet:'')+(bytes!=""? '&bytes='+bytes:'')+(interval!=""? '&interval='+interval:'');
 				console.log(url);
-				microAjax(url, function(result) { _log.value=result; });
+				microAjax(url, function(result) { _log.value=result; inputLock(false)});
 			}
 		}
 		
@@ -94,6 +95,7 @@
 				{
 					buttons[i].disabled = true;
 				}
+				document.getElementById("stopInterval").disabled = false;
 			}
 			else{
 				for(i = 0;i < inputs.length;i++)
@@ -104,6 +106,7 @@
 				{
 					buttons[i].disabled = false;
 				}
+				document.getElementById("stopInterval").disabled = true;
 			}
 		}
 	</script>
