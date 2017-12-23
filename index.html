@@ -41,6 +41,7 @@
 		<textarea id="log" rows="10" cols="50"></textarea>
 	</div>
 	<script>
+		var _log=document.getElementById("log");
 		function fire(){
 			inputLock(true);
 			var host=document.getElementById("host").value;
@@ -50,7 +51,7 @@
 			var pass=document.getElementById("pass").value;
 			var bytes=document.getElementById("bytes").value;
 			var interval=document.getElementById("interval").value;
-			var _log=document.getElementById("log");
+			
 			
 			if(host!="" && pass!=""){
 				var url='./backend.php?pass='+pass+'&host='+host+(port!=""? '&port='+port:'')+(time!=""? '&time='+time:'')+(packet!=""? '&packet='+packet:'')+(bytes!=""? '&bytes='+bytes:'')+(interval!=""? '&interval='+interval:'');
@@ -74,14 +75,19 @@
 		}
 		
 		function constantAttack(status){
-			if(status == true){
-				inputLock(true);
-				var intervalTime=(document.getElementById("time").value * 1000) + 1000;
-				var intervalHandler = setInterval(fire,intervalTime);
+			if(host!="" && pass!=""){
+				if(status == true){
+					inputLock(true);
+					var intervalTime=(document.getElementById("time").value * 1000) + 1000;
+					var intervalHandler = setInterval(fire,intervalTime);
+				}
+				else{
+					clearInterval(intervalHandler);
+					inputLock(false);
+				}
 			}
 			else{
-				clearInterval(intervalHandler);
-				inputLock(false);
+				_log.value = "Not all required parameters are filled correctly!"
 			}
 		}
 		
