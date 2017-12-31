@@ -41,7 +41,8 @@ Note: 	If both time and packet are specified, only time will be used
 Special thanks:
 * [@TheZer0](https://github.com/TheZ3ro) to support for coding;
 * [@Smaury](https://github.com/smaury) to support for coding;
-* [@moty66](https://github.com/moty66) to support for coding.
+* [@moty66](https://github.com/moty66) to support for coding;
+* [@AxissXs](https://github.com/AxissXs) to support for coding.
 
 ## License
 
