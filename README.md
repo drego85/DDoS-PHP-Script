@@ -15,16 +15,16 @@ From terminal:
 ## Parameters
 
 <pre>help	Print this help summary page
-host	REQUIRED specify IP or HOSTNAME
-pass	REQUIRED only if used from webserver
-port	OPTIONAL if not specified a random ports will be selected
-time	OPTIONAL seconds to keep the DDoS alive, required if packet is not used
+host	  REQUIRED specify IP or HOSTNAME
+pass	  REQUIRED only if used from webserver
+port  	OPTIONAL if not specified a random ports will be selected
+time	  OPTIONAL seconds to keep the DDoS alive, required if packet is not used
 bandwidth	OPTIONAL total MB to send, required if time is not used
-packet	OPTIONAL number of packets to send to the target, required if bandwidth is not used
-bytes	OPTIONAL size of the packet to send, defualt: 65000
-format	OPTIONAL output format, (text,json,xml), default: text
-output	OPTIONAL logfile, save the output to file
-verbose	OPTIONAL 0: debug, 1:info, 2:notice, 3:warning, 4:error, default: info
+packet  	OPTIONAL number of packets to send to the target, required if bandwidth is not used
+bytes	  OPTIONAL size of the packet to send, defualt: 65000
+format  	OPTIONAL output format, (text,json,xml), default: text
+output	  OPTIONAL logfile, save the output to file
+verbose	  OPTIONAL 0: debug, 1:info, 2:notice, 3:warning, 4:error, default: info
 
 Note: 	If both time, packet and bandwidth are specified, only time will be used
 </pre>
