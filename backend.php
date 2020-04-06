@@ -245,7 +245,7 @@ class DDoS {
 		
 		$data = $this->params;
 		
-		// We don't need to send pass, packets and time as data for json and xml, ad we are sending the total
+		// We don't need to send pass, packets and time as data for json and xml, as we are sending the total
 		unset($data['pass']);
 		unset($data['packet']);
 		unset($data['time']);
