@@ -1,4 +1,4 @@
-# DDoS-PHP-Script
+# DDoS PHP Script
 
 Script to perform a DDoS UDP flood by PHP
 
